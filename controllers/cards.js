@@ -29,61 +29,49 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCardBiId = (req, res) => {
-  if (req.params.id.length != 24) {
-    return res.status(400).send(`Нет такого ID`);
-  } else {
-    Card.findByIdAndRemove(req.params.id)
-      .then(card => {
-        if (!card) {
-          return res.status(404).send(`Такой карточки не существует`);
-        }
-        res.status(200).send({ data: card })
-      })
-      .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
-  }
+  Card.findByIdAndRemove(req.params.id)
+    .then(card => {
+      if (!card) {
+        return res.status(404).send(`Такой карточки не существует`);
+      }
+      res.status(200).send({ data: card })
+    })
+    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
 };
 
 module.exports.likeCard = (req, res) => {
-  if (req.params.id.length != 24) {
-    return res.status(400).send(`Нет такого ID`);
-  } else {
-    Card.findByIdAndUpdate(
-      req.params.cardId,
-      { $addToSet: { likes: req.user._id } },
-      {
-        new: true,
-        runValidators: true
-      },
-    )
-      .then(card => {
-        if (!card) {
-          return res.status(404).send(`Такой карточки не существует`);
-        }
-        res.status(200).send({ card })
-      })
-      .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
-  }
-
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } },
+    {
+      new: true,
+      runValidators: true
+    },
+  )
+    .then(card => {
+      if (!card) {
+        return res.status(404).send(`Такой карточки не существует`);
+      }
+      res.status(200).send({ card })
+    })
+    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
 };
 
 module.exports.dislikeCard = (req, res) => {
-  if (req.params.id.length != 24) {
-    return res.status(400).send(`Нет такого ID`);
-  } else {
-    Card.findByIdAndUpdate(
-      req.params.cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true },
-    )
-      .then(card => {
-        if (!card) {
-          return res.status(404).send(`Такой карточки не существует`);
-        }
-        res.status(200).send({ card })
-      })
-      .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
-  }
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  )
+    .then(card => {
+      if (!card) {
+        return res.status(404).send(`Такой карточки не существует`);
+      }
+      res.status(200).send({ card })
+    })
+    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
 }
+
 
 
 
