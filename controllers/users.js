@@ -4,7 +4,7 @@ module.exports.returnUsers = (req, res) => {
 
   User.find({})
     .then(user => res.status(200).send({ user }))
-    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
+    .catch(err => res.status(500).send(`На сервере произошла ошибка: ${err.message}`));
 };
 
 module.exports.returnUserById = (req, res) => {
@@ -25,7 +25,7 @@ module.exports.returnUserById = (req, res) => {
           message: `Пользователь с таким _id ${req.params.userId} не найден`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };
 
@@ -46,7 +46,7 @@ module.exports.createUser = (req, res) => {
           message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };
 
@@ -73,7 +73,7 @@ module.exports.updateProfile = (req, res) => {
           message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };
 
@@ -97,6 +97,6 @@ module.exports.updateAvatar = (req, res) => {
           message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };

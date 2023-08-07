@@ -10,7 +10,7 @@
     "dev": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "natalyaKya",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.46.0",

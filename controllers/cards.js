@@ -4,7 +4,7 @@ module.exports.returnCards = (req, res) => {
 
   Card.find({})
     .then(card => res.status(200).send({ card }))
-    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
+    .catch(err => res.status(500).send(`На сервере произошла ошибка: ${err.message}`));
 };
 
 module.exports.createCard = (req, res) => {
@@ -24,7 +24,7 @@ module.exports.createCard = (req, res) => {
           message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };
 
@@ -48,7 +48,7 @@ module.exports.deleteCardBiId = (req, res) => {
           message: `Карточка с таким _id ${req.params.userId} не найдена`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };
 
@@ -79,7 +79,7 @@ module.exports.likeCard = (req, res) => {
           message: `Карточка с таким _id ${req.params.userId} не найдена`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 };
 
@@ -107,7 +107,7 @@ module.exports.dislikeCard = (req, res) => {
           message: `Карточка с таким _id ${req.params.userId} не найдена`
         });
       }
-      res.status(500).send(`Ошибка сервера: ${err.message}`);
+      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
     });
 }
 
