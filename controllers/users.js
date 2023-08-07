@@ -10,9 +10,7 @@ module.exports.returnUsers = (req, res) => {
 module.exports.returnUserById = (req, res) => {
 
   User.findById(req.params.userId)
-    .orFail(
-      () => new Error(`Пользователь с таким _id ${req.params.userId} не найден`) //надо получить эту строку
-    )
+    .orFail()
     .then(user => {
       res.status(200).send({ user })
     })
@@ -20,6 +18,11 @@ module.exports.returnUserById = (req, res) => {
       if (err.name === "CastError") {
         return res.status(400).send({
           message: `Некорректное ID пользователя:  ${err.message}`
+        });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(404).send({
+          message: `Пользователь с таким _id ${req.params.userId} не найден`
         });
       }
       res.status(500).send(`Ошибка сервера: ${err.message}`);
