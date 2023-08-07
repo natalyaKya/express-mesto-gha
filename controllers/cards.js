@@ -29,14 +29,27 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCardBiId = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findByIdAndRemove(req.params.userId)
+    .orFail()
     .then(card => {
       if (!card) {
         return res.status(404).send(`Такой карточки не существует`);
       }
       res.status(200).send({ data: card })
     })
-    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
+    .catch(err => {
+      if (err.name === "CastError") {
+        return res.status(400).send({
+          message: `Некорректное ID карточки:  ${err.message}`
+        });
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(404).send({
+          message: `Карточка с таким _id ${req.params.userId} не найдена`
+        });
+      }
+      res.status(500).send(`Ошибка сервера: ${err.message}`);
+    });
 };
 
 module.exports.likeCard = (req, res) => {
