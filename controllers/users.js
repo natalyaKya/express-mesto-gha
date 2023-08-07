@@ -16,7 +16,14 @@ module.exports.returnUserById = (req, res) => {
       }
       res.status(200).send({ user })
     })
-    .catch(err => res.status(500).send(`Ошибка сервера: ${err.message}`));
+    .catch(err => {
+      if (err.name === "CastError") {
+        return res.status(400).send({
+          message: `Невозможно преобразовать значение:  ${err.message}`
+        });
+      }
+      res.status(500).send(`Ошибка сервера: ${err.message}`);
+    });
 };
 
 module.exports.createUser = (req, res) => {
