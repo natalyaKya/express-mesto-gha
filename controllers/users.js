@@ -10,16 +10,16 @@ module.exports.returnUsers = (req, res) => {
 module.exports.returnUserById = (req, res) => {
 
   User.findById(req.params.userId)
+    .orFail(
+      () => new Error(`Пользователь с таким _id ${req.params.userId} не найден`) //надо получить эту строку
+    )
     .then(user => {
-      if (!user) {
-        return res.status(404).send(`Такого пользователя не существует`);
-      }
       res.status(200).send({ user })
     })
     .catch(err => {
       if (err.name === "CastError") {
         return res.status(400).send({
-          message: `Невозможно преобразовать значение:  ${err.message}`
+          message: `Некорректное ID пользователя:  ${err.message}`
         });
       }
       res.status(500).send(`Ошибка сервера: ${err.message}`);
