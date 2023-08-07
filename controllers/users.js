@@ -9,7 +9,7 @@ module.exports.returnUsers = (req, res) => {
 
 module.exports.returnUserById = (req, res) => {
 
-  User.findById(req.params.id)
+  User.findById(req.user._id)
     .then(user => {
       if (!user) {
         return res.status(404).send(`Такого пользователя не существует`);
