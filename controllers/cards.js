@@ -29,7 +29,7 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCardBiId = (req, res) => {
-  Card.findByIdAndRemove(req.params.userId)
+  Card.findByIdAndRemove(req.params.cardId)
     .orFail()
     .then(card => {
       if (!card) {
