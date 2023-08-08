@@ -16,7 +16,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 app.use(helmet());
 app.use(
   rateLimit({
-    windowMs: 5 * 60 * 1000,
+    windowMs: 40 * 60 * 1000,
     max: 40,
     message: 'Too many requests',
   }),
