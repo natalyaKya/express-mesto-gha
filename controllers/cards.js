@@ -6,12 +6,10 @@ const {
   ServerError,
 } = require('../utils/utils');
 
-module.exports.returnCards = (req, res) => {
+module.exports.returnCards = (req, res, next) => {
   Card.find({})
     .then((card) => res.send({ card }))
-    .catch(res.status(ServerError).send({
-      message: 'На сервере произошла ошибка',
-    }));
+    .catch(next);
 };
 
 module.exports.createCard = (req, res) => {

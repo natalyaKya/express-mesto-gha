@@ -2,12 +2,10 @@ const User = require('../models/user');
 
 const { CastError, NotFoundError, ServerError } = require('../utils/utils');
 
-module.exports.returnUsers = (req, res) => {
+module.exports.returnUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send({ user }))
-    .catch(res.status(ServerError).send({
-      message: 'На сервере произошла ошибка',
-    }));
+    .catch(next);
 };
 
 module.exports.returnUserById = (req, res) => {
