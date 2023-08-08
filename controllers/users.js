@@ -1,52 +1,52 @@
 const User = require('../models/user');
 
-module.exports.returnUsers = (req, res) => {
+const { CastError, NotFoundError, ServerError } = require('../utils/utils');
 
+module.exports.returnUsers = (req, res) => {
   User.find({})
-    .then(user => res.status(200).send({ user }))
-    .catch(err => res.status(500).send(`На сервере произошла ошибка: ${err.message}`));
+    .then((user) => res.send({ user }))
+    .catch(res.status(ServerError).send({
+      message: 'На сервере произошла ошибка',
+    }));
 };
 
 module.exports.returnUserById = (req, res) => {
-
   User.findById(req.params.userId)
     .orFail()
-    .then(user => {
-      res.status(200).send({ user })
+    .then((user) => {
+      res.send({ user });
     })
-    .catch(err => {
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Некорректное ID пользователя:  ${err.message}`
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(CastError).send({
+          message: 'Некорректное ID пользователя',
         });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({
-          message: `Пользователь с таким _id ${req.params.userId} не найден`
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NotFoundError).send({
+          message: `Пользователь с таким _id ${req.params.userId} не найден`,
         });
       }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };
 
 module.exports.createUser = (req, res) => {
-  console.log(req.user._id);
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then(user => { return res.status(201).send({ user }) })
-    .catch(err => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({
-          message: `Ошибка валидации: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
+    .then((user) => { res.status(201).send({ user }); })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(CastError).send({
+          message: 'Ошибка валидации',
         });
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
-        });
-      }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };
 
@@ -54,49 +54,57 @@ module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
-    runValidators: true
+    runValidators: true,
   })
-    .then(user => {
+    .then((user) => {
       if (!user) {
-        return res.status(404).send(`Такого пользователя не существует`);
+        return res.status(NotFoundError).send({
+          message: 'Такого пользователя не существует',
+        });
       }
-      res.status(200).send({ user })
+      return res.send({ user });
     })
-    .catch(err => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({
-          message: `Ошибка валидации: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(CastError).send({
+          message: 'Ошибка валидации',
         });
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
+      if (err.name === 'CastError') {
+        return res.status(CastError).send({
+          message: 'Переданы некорректные данные',
         });
       }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then(user => {
+    .then((user) => {
       if (!user) {
-        return res.status(404).send(`Такого пользователя не существует`);
+        return res.status(NotFoundError).send({
+          message: 'Такого пользователя не существует',
+        });
       }
-      res.status(200).send({ user })
+      return res.send({ user });
     })
-    .catch(err => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({
-          message: `Ошибка валидации: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(CastError).send({
+          message: 'Ошибка валидации',
         });
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
+      if (err.name === 'CastError') {
+        return res.status(CastError).send({
+          message: 'Переданы некорректные данные',
         });
       }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };

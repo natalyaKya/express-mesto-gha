@@ -1,54 +1,56 @@
 const Card = require('../models/card');
 
-module.exports.returnCards = (req, res) => {
+const {
+  CastError,
+  NotFoundError,
+  ServerError,
+} = require('../utils/utils');
 
+module.exports.returnCards = (req, res) => {
   Card.find({})
-    .then(card => res.status(200).send({ card }))
-    .catch(err => res.status(500).send(`На сервере произошла ошибка: ${err.message}`));
+    .then((card) => res.send({ card }))
+    .catch(res.status(ServerError).send({
+      message: 'На сервере произошла ошибка',
+    }));
 };
 
 module.exports.createCard = (req, res) => {
-
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-    .then(card => { return res.status(201).send({ card }) })
-    .catch(err => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({
-          message: `Ошибка валидации: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
+    .then((card) => { res.status(201).send({ card }); })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(CastError).send({
+          message: 'Ошибка валидации',
         });
       }
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Невозможно преобразовать значение: ${Object.values(err.errors).map((err) => err.message).join(", ")}`
-        });
-      }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };
 
 module.exports.deleteCardBiId = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail()
-    .then(card => {
-      if (!card) {
-        return res.status(404).send(`Такой карточки не существует`);
-      }
-      res.status(200).send({ data: card })
+    .then((card) => {
+      res.send({ data: card });
     })
-    .catch(err => {
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Некорректное ID карточки:  ${err.message}`
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(CastError).send({
+          message: 'Некорректное ID карточки',
         });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({
-          message: `Карточка с таким _id ${req.params.userId} не найдена`
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NotFoundError).send({
+          message: `Карточка с таким _id ${req.params.userId} не найдена`,
         });
       }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };
 
@@ -58,28 +60,27 @@ module.exports.likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     {
       new: true,
-      runValidators: true
+      runValidators: true,
     },
   )
     .orFail()
-    .then(card => {
-      if (!card) {
-        return res.status(404).send(`Такой карточки не существует`);
-      }
-      res.status(200).send({ card })
+    .then((card) => {
+      res.send({ card });
     })
-    .catch(err => {
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Некорректное ID карточки:  ${err.message}`
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(CastError).send({
+          message: 'Некорректное ID карточки',
         });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({
-          message: `Карточка с таким _id ${req.params.userId} не найдена`
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NotFoundError).send({
+          message: `Карточка с таким _id ${req.params.userId} не найдена`,
         });
       }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
 };
 
@@ -90,28 +91,22 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail()
-    .then(card => {
-      if (!card) {
-        return res.status(404).send(`Такой карточки не существует`);
-      }
-      res.status(200).send({ card })
+    .then((card) => {
+      res.send({ card });
     })
-    .catch(err => {
-      if (err.name === "CastError") {
-        return res.status(400).send({
-          message: `Некорректное ID карточки:  ${err.message}`
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(CastError).send({
+          message: 'Некорректное ID карточки',
         });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({
-          message: `Карточка с таким _id ${req.params.userId} не найдена`
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(NotFoundError).send({
+          message: `Карточка с таким _id ${req.params.userId} не найдена`,
         });
       }
-      res.status(500).send(`На сервере произошла ошибка: ${err.message}`);
+      return res.status(ServerError).send({
+        message: 'На сервере произошла ошибка',
+      });
     });
-}
-
-
-
-
-
+};
