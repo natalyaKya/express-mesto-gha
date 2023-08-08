@@ -17,7 +17,7 @@ app.use(helmet());
 app.use(
   rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 5,
+    max: 40,
     message: 'Too many requests',
   }),
 );
