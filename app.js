@@ -41,7 +41,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().uri().regex(/^http(s)?:\/\/(w{3}\.)?[\w\-._~:/?#[\]@!$&'()*+,;=](#)?/),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(3),
   }),
@@ -53,7 +53,8 @@ app.all('*', () => {
   throw new NotFoundError('Страница не найдена');
 });
 app.use(errors());
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   res.status(err.statusCode).send({ message: err.message });
+  next();
 });
 app.listen(PORT);
