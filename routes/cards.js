@@ -11,8 +11,8 @@ const {
 routerCard.get('/', returnCards);
 routerCard.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().uri(),
+    name: Joi.string().min(2).max(30).required(),
+    link: Joi.string().regex(/^http(s)?:\/\/(w{3}\.)?[\w\-._~:/?#[\]@!$&'()*+,;=](#)?/).required(),
   }),
 }), createCard);
 routerCard.delete('/:cardId', celebrate({

@@ -9,6 +9,11 @@ const {
 } = require('../controllers/users');
 
 routerUser.get('/', returnUsers);
+routerUser.get('/me', celebrate({
+  body: Joi.object().keys({
+    _id: Joi.string().length(24).required(),
+  }),
+}), returnCurrentUser);
 routerUser.get('/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().length(24).required(),
@@ -22,13 +27,8 @@ routerUser.patch('/me', celebrate({
 }), updateProfile);
 routerUser.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().regex(/^http(s)?:\/\/(w{3}\.)?[\w\-._~:/?#[\]@!$&'()*+,;=](#)?/),
   }),
 }), updateAvatar);
-routerUser.get('/me', celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().length(24).required(),
-  }),
-}), returnCurrentUser);
 
 module.exports = routerUser;
