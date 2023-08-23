@@ -21,5 +21,5 @@ module.exports = (req, res, next) => {
     return next(new ServerError('На сервере произошла ошибка'));
   }
   req.user = payload;
-  return next;
+  return next();
 };
