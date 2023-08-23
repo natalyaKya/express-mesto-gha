@@ -62,10 +62,21 @@ module.exports.createUser = (req, res, next) => {
       about,
       avatar,
     }))
-    .then((user) => { res.status(201).send({ user }); })
+    .then((user) => {
+      res.status(201).send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new CastError('Ошибка валидации');
+      }
+      if (err.code === 11000) {
+        throw new DublicateError('Пользователь с таким e-mail уже зарегистрирован');
       }
       throw new ServerError('На сервере произошла ошибка');
     })
@@ -119,19 +130,21 @@ module.exports.updateAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
+
+  User.findOne({ email }).select('+password')
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      return res.cookie('jwt', token, { httpOnly: true }).end();
-    })
-    .catch((err) => {
-      if (err.name === 'Unauthorized') {
+      if (!user) {
         throw new UnauthorizedError('Неверные логин или пароль');
       }
-      if (err.code === 11000) {
-        throw new DublicateError('Пользователь с таким e-mail уже зарегистрирован');
-      }
-      throw new ServerError('На сервере произошла ошибка');
+
+      bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new UnauthorizedError('Неверные логин или пароль');
+          }
+          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+          return res.cookie('jwt', token, { httpOnly: true }).end();
+        });
     })
     .catch(next);
 };
