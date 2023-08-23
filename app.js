@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 const routerUser = require('./routes/users');
@@ -46,6 +47,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required().min(3),
   }),
 }), createUser);
+app.use(cookieParser());
 app.use(auth);
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
