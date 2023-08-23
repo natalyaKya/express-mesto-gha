@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-const CastError = require('../errors/cast-err');
 const NotFoundError = require('../errors/not-found-err');
 const ServerError = require('../errors/server-err');
 const UnauthorizedError = require('../errors/unauthor-err');
@@ -21,9 +20,6 @@ module.exports.returnUserById = (req, res, next) => {
       res.send({ user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new CastError('Некорректное ID пользователя');
-      }
       if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`);
       }
@@ -39,9 +35,6 @@ module.exports.returnCurrentUser = (req, res, next) => {
       res.send({ user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new CastError('Некорректное ID пользователя');
-      }
       if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`);
       }
@@ -72,9 +65,6 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new CastError('Ошибка валидации');
-      }
       if (err.code === 11000) {
         throw new DublicateError('Пользователь с таким e-mail уже зарегистрирован');
       }
@@ -95,13 +85,7 @@ module.exports.updateProfile = (req, res, next) => {
       }
       return res.send({ user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new CastError('Ошибка валидации');
-      }
-      if (err.name === 'CastError') {
-        throw new CastError('Переданы некорректные данные');
-      }
+    .catch(() => {
       throw new ServerError('На сервере произошла ошибка');
     })
     .catch(next);
@@ -116,13 +100,7 @@ module.exports.updateAvatar = (req, res, next) => {
       }
       return res.send({ user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new CastError('Ошибка валидации');
-      }
-      if (err.name === 'CastError') {
-        throw new CastError('Переданы некорректные данные');
-      }
+    .catch(() => {
       throw new ServerError('На сервере произошла ошибка');
     })
     .catch(next);

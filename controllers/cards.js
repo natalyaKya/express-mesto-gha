@@ -1,6 +1,5 @@
 const Card = require('../models/card');
 
-const CastError = require('../errors/cast-err');
 const NotFoundError = require('../errors/not-found-err');
 const ServerError = require('../errors/server-err');
 const ForbiddenError = require('../errors/forbidden-err');
@@ -16,10 +15,7 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => { res.status(201).send({ card }); })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new CastError('Ошибка валидации');
-      }
+    .catch(() => {
       throw new ServerError('На сервере произошла ошибка');
     })
     .catch(next);
@@ -35,9 +31,6 @@ module.exports.deleteCardBiId = (req, res, next) => {
       return res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new CastError('Некорректное ID карточки');
-      }
       if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(`Карточка с таким _id ${req.params.cardId} не найдена`);
       }
@@ -60,9 +53,6 @@ module.exports.likeCard = (req, res, next) => {
       res.send({ card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new CastError('Некорректное ID карточки');
-      }
       if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`);
       }
@@ -82,9 +72,6 @@ module.exports.dislikeCard = (req, res, next) => {
       res.send({ card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new CastError('Некорректное ID карточки');
-      }
       if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`);
       }
