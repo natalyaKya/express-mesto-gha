@@ -143,7 +143,8 @@ module.exports.login = (req, res, next) => {
             throw new UnauthorizedError('Неверные логин или пароль');
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-          return res.cookie('jwt', token, { httpOnly: true }).end();
+          return res.cookie('jwt', token, { httpOnly: true })
+            .send({ message: 'Авторизация прошла успешно' }).end();
         });
     })
     .catch(next);
