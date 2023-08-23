@@ -10,7 +10,13 @@ const DublicateError = require('../errors/dublicate-err');
 
 module.exports.returnUsers = (req, res, next) => {
   User.find({})
-    .then((user) => res.send({ user }))
+    .then((user) => res.send({
+      _id: user._id,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch(next);
 };
 
@@ -18,7 +24,13 @@ module.exports.returnUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
     .then((user) => {
-      res.send({ user });
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -36,7 +48,13 @@ module.exports.returnCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => {
-      res.send({ user });
+      res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -93,7 +111,13 @@ module.exports.updateProfile = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Такого пользователя не существует');
       }
-      return res.send({ user });
+      return res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -114,7 +138,13 @@ module.exports.updateAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Такого пользователя не существует');
       }
-      return res.send({ user });
+      return res.send({
+        _id: user._id,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
