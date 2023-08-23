@@ -28,7 +28,7 @@ module.exports.deleteCardBiId = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail()
     .then((card) => {
-      if (req.user._id !== req.owner.id) {
+      if (JSON.stringify(req.user._id) !== JSON.stringify(card.owner)) {
         throw new CastError('Пользователь не может  удалять карточки других пользователей');
       }
       return res.send({ data: card });
@@ -38,7 +38,7 @@ module.exports.deleteCardBiId = (req, res, next) => {
         throw new CastError('Некорректное ID карточки');
       }
       if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`);
+        throw new NotFoundError(`Карточка с таким _id ${req.params.cardId} не найдена`);
       }
       throw new ServerError('На сервере произошла ошибка');
     })
