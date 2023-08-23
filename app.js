@@ -2,9 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const routerUser = require('./routes/users');
 const routerCard = require('./routes/cards');
-const { NotFoundError } = require('./utils/utils');
+const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/not-found-err');
+const {
+  login,
+  createUser,
+} = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -23,19 +30,30 @@ app.use(
 );
 app.use(helmet());
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64cb0568c1ca60f021e4f603',
-  };
 
-  next();
-});
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().unique().email(),
+    password: Joi.string().required().min(3),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri(),
+    email: Joi.string().required().unique().email(),
+    password: Joi.string().required().min(3),
+  }),
+}), createUser);
+app.use(auth);
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
-app.all('*', (req, res, next) => {
-  res.status(NotFoundError).send({
-    message: 'Страница не найдена',
-  });
-  next();
+app.all('*', () => {
+  throw new NotFoundError('Страница не найдена');
+});
+app.use(errors());
+app.use((err, req, res) => {
+  res.status(err.statusCode).send({ message: err.message });
 });
 app.listen(PORT);
