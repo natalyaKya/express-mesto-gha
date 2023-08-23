@@ -16,7 +16,7 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => { res.status(201).send({ card }); })
     .catch(() => {
-      throw new ServerError('На сервере произошла ошибка');
+      next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -32,9 +32,9 @@ module.exports.deleteCardBiId = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(`Карточка с таким _id ${req.params.cardId} не найдена`);
+        return next(new NotFoundError(`Карточка с таким _id ${req.params.cardId} не найдена`));
       }
-      throw new ServerError('На сервере произошла ошибка');
+      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -54,9 +54,9 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`);
+        return next(new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`));
       }
-      throw new ServerError('На сервере произошла ошибка');
+      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -73,9 +73,9 @@ module.exports.dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`);
+        return next(new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`));
       }
-      throw new ServerError('На сервере произошла ошибка');
+      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };

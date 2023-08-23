@@ -21,9 +21,9 @@ module.exports.returnUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`);
+        return next(new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`));
       }
-      throw new ServerError('На сервере произошла ошибка');
+      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -36,9 +36,9 @@ module.exports.returnCurrentUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`);
+        return next(new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`));
       }
-      throw new ServerError('На сервере произошла ошибка');
+      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -66,9 +66,9 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.code === 11000) {
-        throw new DublicateError('Пользователь с таким e-mail уже зарегистрирован');
+        return next(new DublicateError('Пользователь с таким e-mail уже зарегистрирован'));
       }
-      throw new ServerError('На сервере произошла ошибка');
+      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -81,12 +81,12 @@ module.exports.updateProfile = (req, res, next) => {
   })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Такого пользователя не существует');
+        return next(new NotFoundError('Такого пользователя не существует'));
       }
       return res.send({ user });
     })
     .catch(() => {
-      throw new ServerError('На сервере произошла ошибка');
+      next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -96,12 +96,12 @@ module.exports.updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Такого пользователя не существует');
+        return next(new NotFoundError('Такого пользователя не существует'));
       }
       return res.send({ user });
     })
     .catch(() => {
-      throw new ServerError('На сервере произошла ошибка');
+      next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -112,13 +112,13 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Неверные логин или пароль');
+        return next(new UnauthorizedError('Неверные логин или пароль'));
       }
 
-      bcrypt.compare(password, user.password)
+      return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new UnauthorizedError('Неверные логин или пароль');
+            return next(new UnauthorizedError('Неверные логин или пароль'));
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
           return res.cookie('jwt', token, { httpOnly: true })

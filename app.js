@@ -51,8 +51,8 @@ app.use(cookieParser());
 app.use(auth);
 app.use('/users', routerUser);
 app.use('/cards', routerCard);
-app.all('*', () => {
-  throw new NotFoundError('Страница не найдена');
+app.all('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 app.use(errors());
 app.use((err, req, res, next) => {
