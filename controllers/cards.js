@@ -3,6 +3,7 @@ const Card = require('../models/card');
 const CastError = require('../errors/cast-err');
 const NotFoundError = require('../errors/not-found-err');
 const ServerError = require('../errors/server-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.returnCards = (req, res, next) => {
   Card.find({})
@@ -29,7 +30,7 @@ module.exports.deleteCardBiId = (req, res, next) => {
     .orFail()
     .then((card) => {
       if (JSON.stringify(req.user._id) !== JSON.stringify(card.owner)) {
-        throw new CastError('Пользователь не может  удалять карточки других пользователей');
+        return next(new ForbiddenError('Пользователь не может  удалять карточки других пользователей'));
       }
       return res.send({ data: card });
     })
