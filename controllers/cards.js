@@ -1,7 +1,6 @@
 const Card = require('../models/card');
 
 const NotFoundError = require('../errors/not-found-err');
-const ServerError = require('../errors/server-err');
 const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.returnCards = (req, res, next) => {
@@ -15,26 +14,21 @@ module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => { res.status(201).send({ card }); })
-    .catch(() => {
-      next(new ServerError('На сервере произошла ошибка'));
-    })
     .catch(next);
 };
 
 module.exports.deleteCardBiId = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
+  Card.findById(req.params.cardId)
+    .orFail(new NotFoundError(`Карточка с таким _id ${req.params.cardId} не найдена`))
     .then((card) => {
       if (JSON.stringify(req.user._id) !== JSON.stringify(card.owner)) {
         return next(new ForbiddenError('Пользователь не может  удалять карточки других пользователей'));
       }
-      return res.send({ data: card });
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError(`Карточка с таким _id ${req.params.cardId} не найдена`));
-      }
-      return next(new ServerError('На сервере произошла ошибка'));
+      return Card.findByIdAndRemove(req.params.cardId)
+        .then(() => {
+          res.send({ data: card });
+        })
+        .cath(next);
     })
     .catch(next);
 };
@@ -48,15 +42,9 @@ module.exports.likeCard = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail()
+    .orFail(new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`))
     .then((card) => {
       res.send({ card });
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`));
-      }
-      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -67,15 +55,9 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail()
+    .orFail(new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`))
     .then((card) => {
       res.send({ card });
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError(`Карточка с таким _id ${req.params.userId} не найдена`));
-      }
-      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };

@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const NotFoundError = require('../errors/not-found-err');
-const ServerError = require('../errors/server-err');
 const UnauthorizedError = require('../errors/unauthor-err');
 const DublicateError = require('../errors/dublicate-err');
 
@@ -15,30 +14,18 @@ module.exports.returnUsers = (req, res, next) => {
 
 module.exports.returnUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail()
+    .orFail(new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`))
     .then((user) => {
       res.send({ user });
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`));
-      }
-      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
 
 module.exports.returnCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail()
+    .orFail(new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`))
     .then((user) => {
       res.send({ user });
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        return next(new NotFoundError(`Пользователь с таким _id ${req.params.userId} не найден`));
-      }
-      return next(new ServerError('На сервере произошла ошибка'));
     })
     .catch(next);
 };
@@ -68,9 +55,8 @@ module.exports.createUser = (req, res, next) => {
       if (err.code === 11000) {
         return next(new DublicateError('Пользователь с таким e-mail уже зарегистрирован'));
       }
-      return next(new ServerError('На сервере произошла ошибка'));
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -79,14 +65,9 @@ module.exports.updateProfile = (req, res, next) => {
     new: true,
     runValidators: true,
   })
+    .orFail(new NotFoundError('Такого пользователя не существует'))
     .then((user) => {
-      if (!user) {
-        return next(new NotFoundError('Такого пользователя не существует'));
-      }
-      return res.send({ user });
-    })
-    .catch(() => {
-      next(new ServerError('На сервере произошла ошибка'));
+      res.send({ user });
     })
     .catch(next);
 };
@@ -94,14 +75,9 @@ module.exports.updateProfile = (req, res, next) => {
 module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+    .orFail(new NotFoundError('Такого пользователя не существует'))
     .then((user) => {
-      if (!user) {
-        return next(new NotFoundError('Такого пользователя не существует'));
-      }
-      return res.send({ user });
-    })
-    .catch(() => {
-      next(new ServerError('На сервере произошла ошибка'));
+      res.send({ user });
     })
     .catch(next);
 };
