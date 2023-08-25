@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-const regularLink = require('../utils/regular');
+const { regularLink } = require('../utils/regular');
 
 const validationCreateCard = celebrate({
   body: Joi.object().keys({
